@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="..\build\Winery-backend.props" />
+</Project>
