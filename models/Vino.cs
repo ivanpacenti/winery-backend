@@ -6,6 +6,8 @@ public class Vino
     public decimal Prezzo { get; set; }
     public int Scorte { get; set; }
     public DateTime DataAggiunta { get; set; } = DateTime.Now;
+    public string ImmagineUrl { get; set; } = string.Empty; // URL dell'immagine
+
 
     // Relazione con Vendite
     public List<Vendita> Vendite { get; set; } = new();

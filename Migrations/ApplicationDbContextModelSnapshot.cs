@@ -118,6 +118,9 @@ namespace Winery_backend.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("Ruolo")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.ToTable("Utenti");
@@ -166,6 +169,10 @@ namespace Winery_backend.Migrations
 
                     b.Property<DateTime>("DataAggiunta")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("ImmagineUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Nome")
                         .IsRequired()

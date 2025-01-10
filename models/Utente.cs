@@ -6,6 +6,8 @@ public class Utente
     public string Email { get; set; } = string.Empty;
     public string Password { get; set; } = string.Empty; // Hash della password
     public DateTime DataRegistrazione { get; set; } = DateTime.Now;
+    public int Ruolo { get; set; } // "Administrator:3", "Utente:2",
+
 
     // Relazione con Metodi di Pagamento
     public List<MetodoPagamento> MetodiPagamento { get; set; } = new();

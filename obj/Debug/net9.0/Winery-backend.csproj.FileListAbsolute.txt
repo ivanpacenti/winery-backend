@@ -155,3 +155,5 @@ C:\Users\Ivan\RiderProjects\Winery-backend\obj\Debug\net9.0\refint\Winery-backen
 C:\Users\Ivan\RiderProjects\Winery-backend\obj\Debug\net9.0\Winery-backend.pdb
 C:\Users\Ivan\RiderProjects\Winery-backend\obj\Debug\net9.0\Winery-backend.genruntimeconfig.cache
 C:\Users\Ivan\RiderProjects\Winery-backend\obj\Debug\net9.0\ref\Winery-backend.dll
+C:\Users\Ivan\RiderProjects\Winery-backend\obj\Debug\net9.0\Winery-backend.sourcelink.json
+C:\Users\Ivan\RiderProjects\Winery-backend\bin\Debug\net9.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
