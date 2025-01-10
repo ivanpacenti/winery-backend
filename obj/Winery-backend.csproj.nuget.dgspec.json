@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Ivan\\RiderProjects\\Winery-backend\\Winery-backend.csproj": {}
+    "/Users/ivan/RiderProjects/winery-backend/Winery-backend.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Ivan\\RiderProjects\\Winery-backend\\Winery-backend.csproj": {
+    "/Users/ivan/RiderProjects/winery-backend/Winery-backend.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Ivan\\RiderProjects\\Winery-backend\\Winery-backend.csproj",
+        "projectUniqueName": "/Users/ivan/RiderProjects/winery-backend/Winery-backend.csproj",
         "projectName": "Winery-backend",
-        "projectPath": "C:\\Users\\Ivan\\RiderProjects\\Winery-backend\\Winery-backend.csproj",
-        "packagesPath": "C:\\Users\\Ivan\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Ivan\\RiderProjects\\Winery-backend\\obj\\",
+        "projectPath": "/Users/ivan/RiderProjects/winery-backend/Winery-backend.csproj",
+        "packagesPath": "/Users/ivan/.nuget/packages/",
+        "outputPath": "/Users/ivan/RiderProjects/winery-backend/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\Ivan\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "/Users/ivan/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net9.0"
@@ -36,7 +36,7 @@
         "restoreAuditProperties": {
           "enableAudit": "true",
           "auditLevel": "low",
-          "auditMode": "direct"
+          "auditMode": "all"
         },
         "SdkAnalysisLevel": "9.0.100"
       },
@@ -90,7 +90,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.101/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/Users/ivan/.dotnet/sdk/9.0.100/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

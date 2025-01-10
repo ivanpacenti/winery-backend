@@ -121,6 +121,10 @@ namespace Winery_backend.Migrations
                     b.Property<int>("Ruolo")
                         .HasColumnType("int");
 
+                    b.Property<string>("Salt")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id");
 
                     b.ToTable("Utenti");

@@ -4,6 +4,8 @@ public class Utente
     public string Nome { get; set; } = string.Empty;
     public string Cognome { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
+    public string Salt { get; set; } = string.Empty; // Salt
+
     public string Password { get; set; } = string.Empty; // Hash della password
     public DateTime DataRegistrazione { get; set; } = DateTime.Now;
     public int Ruolo { get; set; } // "Administrator:3", "Utente:2",
