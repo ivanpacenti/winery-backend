@@ -35,9 +35,17 @@ public class AuthController : ControllerBase
                 return Unauthorized("Credenziali non valide");
             }
 
-            var token = GenerateJwtToken(user.Ruolo == 3 ? "Administrator" : "User");
+            var token = GenerateJwtToken(user);
+            var userResponse = new
+            {
+                Id = user.Id,
+                Nome = user.Nome,
+                Cognome = user.Cognome,
+                Email = user.Email,
+                Ruolo = user.Ruolo
+            };
 
-            return Ok(new { Token = token });
+            return Ok(new { Token = token,Utente=userResponse });
         }
         catch (Exception ex)
         {
@@ -64,13 +72,15 @@ public class AuthController : ControllerBase
         return Ok("Questa è una risposta protetta!");
     }
 
-    private string GenerateJwtToken(string role)
+    private string GenerateJwtToken(Utente user)
     {
         var claims = new[]
         {
-            new Claim(JwtRegisteredClaimNames.Sub, "user"),
-            new Claim(ClaimTypes.Role, role),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+            new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+            new Claim(ClaimTypes.Role, user.Ruolo == 3 ? "Administrator" : "User"),
+            new Claim("nome", user.Nome),
+            new Claim("cognome", user.Cognome),
+            new Claim("email", user.Email),
         };
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Key));
@@ -85,6 +95,7 @@ public class AuthController : ControllerBase
 
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
+
 
     private string HashPassword(string password, string salt)
     {
