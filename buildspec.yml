@@ -1,40 +1,40 @@
 version: 0.2
 
 env:
-  secrets-manager:
-    SSH_PRIVATE_KEY: "SSH_PRIVATE_KEY:PRIVATE_KEY"
+secrets-manager:
+  SSH_PRIVATE_KEY: "SSH_PRIVATE_KEY:PRIVATE_KEY"
 
 phases:
-  install:
-    runtime-versions:
-      dotnet: 8.0
-    commands:
-      - echo "Restoring dependencies..."
-      - dotnet restore
+install:
+  runtime-versions:
+    dotnet: 8.0
+  commands:
+    - echo "Restoring dependencies..."
+    - dotnet restore
 
-  build:
-    commands:
-      - echo "Building backend..."
-      - dotnet publish -c Release -o published
+build:
+  commands:
+    - echo "Building backend..."
+    - dotnet publish -c Release -o published
 
-  post_build:
-    commands:
-      - echo "Saving SSH key to file..."
-      - echo "$SSH_PRIVATE_KEY" > /root/private_key.pem
-      - chmod 600 /root/private_key.pem
+post_build:
+  commands:
+    - echo "Saving SSH key to file..."
+    - echo "$SSH_PRIVATE_KEY" > /root/private_key.pem
+    - chmod 600 /root/private_key.pem
 
-      - echo "Verifying SSH Key Format..."
-      - file /root/private_key.pem
-      - cat /root/private_key.pem | head -n 5  # Debug
+    - echo "Verifying SSH Key Format..."
+    - file /root/private_key.pem
+    - cat /root/private_key.pem | head -n 5  # Debug
 
-      - echo "Testing SSH connection..."
-      - ssh -o StrictHostKeyChecking=no -i /root/private_key.pem ec2-user@16.170.247.142 "echo 'Connected successfully!'"
+    - echo "Testing SSH connection..."
+    - ssh -o StrictHostKeyChecking=no -i /root/private_key.pem ec2-user@16.170.247.142 "echo 'Connected successfully!'"
 
-      - echo "Deploying build artifacts to EC2..."
-      - scp -o StrictHostKeyChecking=no -i /root/private_key.pem -r published/* ec2-user@16.170.247.142:/var/www/backend/
+    - echo "Deploying build artifacts to EC2..."
+    - scp -o StrictHostKeyChecking=no -i /root/private_key.pem -r published/* ec2-user@16.170.247.142:/var/www/backend/
 
-      - echo "Restarting backend service..."
-      - ssh -o StrictHostKeyChecking=no -i /root/private_key.pem ec2-user@16.170.247.142 "sudo systemctl restart my-backend.service"
+    - echo "Restarting backend service..."
+    - ssh -o StrictHostKeyChecking=no -i /root/private_key.pem ec2-user@16.170.247.142 "sudo systemctl restart my-backend.service"
 
-      - echo "Cleaning up private key..."
-      - rm -f /root/private_key.pem
+    - echo "Cleaning up private key..."
+    - rm -f /root/private_key.pem
