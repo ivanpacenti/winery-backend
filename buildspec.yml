@@ -13,7 +13,7 @@ phases:
   post_build:
     commands:
       - echo "Fetching SSH Key from Secrets Manager..."
-      - export SSH_PRIVATE_KEY=$(aws secretsmanager get-secret-value --secret-id SSH_PRIVATE_KEY --query SecretString --output text | jq -r .)
+      - export SSH_PRIVATE_KEY=$(aws secretsmanager get-secret-value --secret-id SSH_PRIVATE_KEY --query SecretString --output text | jq -r '.SSH_PRIVATE_KEY')
       - echo "$SSH_PRIVATE_KEY" > /root/.ssh/id_rsa
       - chmod 600 /root/.ssh/id_rsa
       - echo "Deploying backend to EC2..."
