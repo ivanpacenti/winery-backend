@@ -18,26 +18,26 @@ phases:
       - echo "Fetching SSH Key from Secrets Manager..."
       - aws secretsmanager get-secret-value --secret-id SSH_PRIVATE_KEY --query SecretString --output text > /root/.ssh/id_rsa_raw
 
-      # Se il file non esiste o è vuoto, interrompe l'esecuzione
+      # Controlla se la chiave è vuota e interrompe la build
       - if [ ! -s /root/.ssh/id_rsa_raw ]; then echo "ERROR: SSH key is empty"; exit 1; fi
 
-      # Rimuove caratteri di escape errati
-      - cat /root/.ssh/id_rsa_raw | tr -d '\r' > /root/.ssh/id_rsa
+      # Formatta correttamente la chiave eliminando caratteri errati
+      - echo -e "$(cat /root/.ssh/id_rsa_raw)" > /root/.ssh/id_rsa
       - chmod 600 /root/.ssh/id_rsa
 
-      # Verifica il formato della chiave privata
+      # Verifica il formato della chiave
       - echo "Checking SSH key format..."
       - file /root/.ssh/id_rsa
-      - head -n 5 /root/.ssh/id_rsa  # Mostra solo le prime 5 righe per debug
+      - head -n 5 /root/.ssh/id_rsa  # Mostra le prime 5 righe per debug
 
-      # Testa la connessione SSH
+      # Test connessione SSH
       - echo "Testing SSH connection..."
       - ssh -v -o StrictHostKeyChecking=no -i /root/.ssh/id_rsa ec2-user@16.170.247.142 "echo 'SSH Connection Successful!'"
 
-      # Se la connessione fallisce, interrompe l'esecuzione
+      # Se la connessione SSH fallisce, interrompe la build
       - if [ $? -ne 0 ]; then echo "ERROR: SSH connection failed"; exit 1; fi
 
-      # Deploy dei file al server EC2
+      # Copia i file nel server EC2
       - echo "Deploying backend to EC2..."
       - scp -o StrictHostKeyChecking=no -i /root/.ssh/id_rsa -r published/* ec2-user@16.170.247.142:/var/www/backend/
 
