@@ -1,10 +1,11 @@
 version: 0.2
+
 phases:
   install:
     runtime-versions:
       dotnet: 8.0
     commands:
-      - echo "Restoring dependencies..."
+      - echo "Installing dependencies..."
       - dotnet restore
   build:
     commands:
@@ -12,11 +13,15 @@ phases:
       - dotnet publish -c Release -o published
   post_build:
     commands:
-      - echo "Fetching SSH Key from Secrets Manager..."
+      - echo "Setting up SSH directory..."
       - mkdir -p ~/.ssh
-      - aws secretsmanager get-secret-value --secret-id SSH_PRIVATE_KEY --query SecretString --output text | tr -d '\r' > ~/.ssh/id_rsa
+      - chmod 700 ~/.ssh
+      - echo "Fetching SSH private key from Secrets Manager..."
+      - aws secretsmanager get-secret-value --secret-id SSH_PRIVATE_KEY --query SecretString --output text > ~/.ssh/id_rsa
+      - echo "Removing carriage returns and ensuring proper formatting..."
+      - tr -d '\r' < ~/.ssh/id_rsa > ~/.ssh/id_rsa.tmp && mv ~/.ssh/id_rsa.tmp ~/.ssh/id_rsa
       - chmod 600 ~/.ssh/id_rsa
-      - echo "Verifying SSH Key..."
-      - ssh-keygen -l -f ~/.ssh/id_rsa || echo "Invalid SSH key format!"
+      - echo "Verifying SSH key format..."
+      - ssh-keygen -l -f ~/.ssh/id_rsa || (echo "Invalid SSH key format!" && exit 1)
       - echo "Testing SSH connection..."
       - ssh -v -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ec2-user@16.170.247.142 "echo 'Connected successfully!'"
