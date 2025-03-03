@@ -23,11 +23,16 @@ phases:
       - echo "$SSH_PRIVATE_KEY" | base64 --decode > /root/private_key.pem
       - chmod 600 /root/private_key.pem
 
+      - echo "Disabling host key verification..."
+      - mkdir -p ~/.ssh
+      - echo "StrictHostKeyChecking no" >> ~/.ssh/config
+      - chmod 600 ~/.ssh/config
+
       - echo "Deploying build artifacts to EC2..."
-      - scp -i /root/private_key.pem -r published/* ec2-user@16.170.247.142:/var/www/backend/
+      - scp -o StrictHostKeyChecking=no -i /root/private_key.pem -r published/* ec2-user@16.170.247.142:/var/www/backend/
 
       - echo "Restarting backend service..."
-      - ssh -i /root/private_key.pem ec2-user@16.170.247.142 "sudo systemctl restart backend.service"
+      - ssh -o StrictHostKeyChecking=no -i /root/private_key.pem ec2-user@16.170.247.142 "sudo systemctl restart my-backend.service"
 
       - echo "Cleaning up private key..."
       - rm -f /root/private_key.pem
