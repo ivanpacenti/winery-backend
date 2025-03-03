@@ -12,6 +12,9 @@ phases:
       - dotnet publish -c Release -o published
   post_build:
     commands:
+      - echo "Adding SSH Key..."
+      - echo "$SSH_PRIVATE_KEY" > /root/.ssh/id_rsa
+      - chmod 600 /root/.ssh/id_rsa
       - echo "Deploying backend to EC2..."
       - scp -o StrictHostKeyChecking=no -r published/* ec2-user@16.170.247.142:/var/www/backend/
       - echo "Restarting backend service..."
