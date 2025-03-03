@@ -20,7 +20,7 @@ phases:
   post_build:
     commands:
       - echo "Saving SSH key to file..."
-      - echo -e "$SSH_PRIVATE_KEY" | sed 's/\\n/\n/g' > /root/private_key.pem
+      - echo "$SSH_PRIVATE_KEY" > /root/private_key.pem
       - chmod 600 /root/private_key.pem
 
       - echo "Verifying SSH Key Format..."
