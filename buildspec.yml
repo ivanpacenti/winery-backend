@@ -5,23 +5,39 @@ phases:
     runtime-versions:
       dotnet: 8.0
     commands:
-      - echo "Installing dependencies..."
+      - echo "Restoring dependencies..."
       - dotnet restore
+
   build:
     commands:
       - echo "Building backend..."
       - dotnet publish -c Release -o published
+
   post_build:
     commands:
-      - echo "Setting up SSH directory..."
-      - mkdir -p ~/.ssh
-      - chmod 700 ~/.ssh
-      - echo "Fetching SSH private key from Secrets Manager..."
-      - aws secretsmanager get-secret-value --secret-id SSH_PRIVATE_KEY --query SecretString --output text > ~/.ssh/id_rsa
-      - echo "Removing carriage returns and ensuring proper formatting..."
-      - tr -d '\r' < ~/.ssh/id_rsa > ~/.ssh/id_rsa.tmp && mv ~/.ssh/id_rsa.tmp ~/.ssh/id_rsa
-      - chmod 600 ~/.ssh/id_rsa
-      - echo "Verifying SSH key format..."
-      - ssh-keygen -l -f ~/.ssh/id_rsa || (echo "Invalid SSH key format!" && exit 1)
+      - echo "Fetching SSH Key from Secrets Manager..."
+      - aws secretsmanager get-secret-value --secret-id SSH_PRIVATE_KEY --query SecretString --output text > /root/.ssh/id_rsa_raw
+
+      # Rimuove eventuali spazi, caratteri di fine riga errati
+      - cat /root/.ssh/id_rsa_raw | jq -r '.SSH_PRIVATE_KEY' | sed 's/\\n/\n/g' | tr -d '\r' > /root/.ssh/id_rsa
+      - chmod 600 /root/.ssh/id_rsa
+
+      - echo "Verifying SSH Key Format..."
+      - file /root/.ssh/id_rsa  # Controlla che sia un file chiave privata valido
+      - head -n 5 /root/.ssh/id_rsa  # Mostra le prime 5 righe per debugging
+
+      # Testa la connessione SSH prima di procedere
       - echo "Testing SSH connection..."
-      - ssh -v -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ec2-user@16.170.247.142 "echo 'Connected successfully!'"
+      - ssh -o StrictHostKeyChecking=no -i /root/.ssh/id_rsa ec2-user@16.170.247.142 "echo 'SSH Connection Successful!'"
+
+      # Deploy dei file al server EC2
+      - echo "Deploying backend to EC2..."
+      - scp -o StrictHostKeyChecking=no -i /root/.ssh/id_rsa -r published/* ec2-user@16.170.247.142:/var/www/backend/
+
+      # Riavvia il backend (assumendo che usi systemd o PM2 per processi Node.js/.NET)
+      - echo "Restarting backend service..."
+      - ssh -o StrictHostKeyChecking=no -i /root/.ssh/id_rsa ec2-user@16.170.247.142 "sudo systemctl restart backend || pm2 restart backend"
+
+artifacts:
+  files:
+    - '**/*'
