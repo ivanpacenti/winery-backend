@@ -28,13 +28,13 @@ phases:
       - cat /root/private_key.pem | head -n 5  # Debug
 
       - echo "Testing SSH connection..."
-      - ssh -o StrictHostKeyChecking=no -i /root/private_key.pem ec2-user@16.170.247.142 "echo 'Connected successfully!'"
+      - ssh -o -i /root/private_key.pem ec2-user@16.170.247.142 "echo 'Connected successfully!'"
 
       - echo "Deploying build artifacts to EC2..."
-      - scp -o StrictHostKeyChecking=no -i /root/private_key.pem -r published/* ec2-user@16.170.247.142:/var/www/backend/
+      - scp -o -i /root/private_key.pem -r published/* ec2-user@16.170.247.142:/var/www/backend/
 
       - echo "Restarting backend service..."
-      - ssh -o StrictHostKeyChecking=no -i /root/private_key.pem ec2-user@16.170.247.142 "sudo systemctl restart my-backend.service"
+      - ssh -o -i /root/private_key.pem ec2-user@16.170.247.142 "sudo systemctl restart my-backend.service"
 
       - echo "Cleaning up private key..."
       - rm -f /root/private_key.pem
