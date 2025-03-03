@@ -15,7 +15,11 @@ phases:
   post_build:
     commands:
       - echo "Fetching SSH Key from Secrets Manager..."
-      - aws secretsmanager get-secret-value --secret-id SSH_PRIVATE_KEY --query SecretString --output text | jq -r '.SSH_PRIVATE_KEY' > /root/private_key.pem
+      - aws secretsmanager get-secret-value --secret-id SSH_PRIVATE_KEY --query SecretString --output text > /root/private_key_raw.pem
+
+      - echo "Reformatting SSH Key..."
+      - awk 'BEGIN {print "-----BEGIN RSA PRIVATE KEY-----"} {gsub(/\\n/,"\n")} 1 END {print "-----END RSA PRIVATE KEY-----"}' /root/private_key_raw.pem > /root/private_key.pem
+
       - chmod 600 /root/private_key.pem
 
       - echo "Verifying SSH Key Format..."
@@ -32,4 +36,4 @@ phases:
       - ssh -o StrictHostKeyChecking=no -i /root/private_key.pem ec2-user@16.170.247.142 "sudo systemctl restart my-backend.service"
 
       - echo "Cleaning up SSH key..."
-      - rm -f /root/private_key.pem
+      - rm -f /root/private_key_raw.pem /root/private_key.pem
