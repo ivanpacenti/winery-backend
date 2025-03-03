@@ -19,8 +19,8 @@ phases:
   
   post_build:
     commands:
-      - echo "Saving SSH key to file..."
-      - echo "$SSH_PRIVATE_KEY" > /root/private_key.pem
+      - echo "Decoding SSH key..."
+      - echo "$SSH_PRIVATE_KEY" | base64 --decode > /root/private_key.pem
       - chmod 600 /root/private_key.pem
 
       - echo "Verifying SSH Key Format..."
