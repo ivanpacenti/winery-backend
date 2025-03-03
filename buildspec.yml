@@ -21,8 +21,8 @@ phases:
       # Controlla se la chiave è vuota e interrompe la build
       - if [ ! -s /root/.ssh/id_rsa_raw ]; then echo "ERROR: SSH key is empty"; exit 1; fi
 
-      # Formatta correttamente la chiave eliminando caratteri errati
-      - echo -e "$(cat /root/.ssh/id_rsa_raw)" > /root/.ssh/id_rsa
+      # Ricostruisce la chiave in formato corretto con line breaks
+      - echo -e "$(aws secretsmanager get-secret-value --secret-id SSH_PRIVATE_KEY --query 'SecretString' --output text | sed 's/\\n/\n/g')" > /root/.ssh/id_rsa
       - chmod 600 /root/.ssh/id_rsa
 
       # Verifica il formato della chiave
@@ -32,18 +32,22 @@ phases:
 
       # Test connessione SSH
       - echo "Testing SSH connection..."
-      - ssh -v -o StrictHostKeyChecking=no -i /root/.ssh/id_rsa ec2-user@16.170.247.142 "echo 'SSH Connection Successful!'"
+      - ssh -o StrictHostKeyChecking=no -i /root/.ssh/id_rsa ec2-user@16.170.247.142 "echo 'SSH Connection Successful!'"
 
       # Se la connessione SSH fallisce, interrompe la build
       - if [ $? -ne 0 ]; then echo "ERROR: SSH connection failed"; exit 1; fi
 
-      # Copia i file nel server EC2
+      # Copia i file buildati nel server EC2
       - echo "Deploying backend to EC2..."
       - scp -o StrictHostKeyChecking=no -i /root/.ssh/id_rsa -r published/* ec2-user@16.170.247.142:/var/www/backend/
 
       # Riavvia il backend
       - echo "Restarting backend service..."
       - ssh -o StrictHostKeyChecking=no -i /root/.ssh/id_rsa ec2-user@16.170.247.142 "sudo systemctl restart backend || pm2 restart backend"
+
+      # Elimina la chiave privata per sicurezza
+      - echo "Removing SSH private key..."
+      - rm -f /root/.ssh/id_rsa /root/.ssh/id_rsa_raw
 
 artifacts:
   files:
