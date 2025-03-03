@@ -1,0 +1,19 @@
+version: 0.2
+phases:
+  install:
+    runtime-versions:
+      dotnet: 8.0
+    commands:
+      - echo "Restoring dependencies..."
+      - dotnet restore
+  build:
+    commands:
+      - echo "Building backend..."
+      - dotnet publish -c Release -o published
+  post_build:
+    commands:
+      - echo "Deploying backend to EC2..."
+      - scp -o StrictHostKeyChecking=no -r published/* ec2-user@16.170.247.142:/var/www/backend/
+      - echo "Restarting backend service..."
+      - ssh ec2-user@16.170.247.142 "sudo systemctl restart backend.service"
+      - echo "Finished deployment"
