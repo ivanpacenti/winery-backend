@@ -48,7 +48,3 @@ phases:
       # Elimina la chiave privata per sicurezza
       - echo "Removing SSH private key..."
       - rm -f /root/.ssh/id_rsa /root/.ssh/id_rsa_raw
-
-artifacts:
-  files:
-    - '**/*'
