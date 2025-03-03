@@ -18,23 +18,30 @@ phases:
       - echo "Fetching SSH Key from Secrets Manager..."
       - aws secretsmanager get-secret-value --secret-id SSH_PRIVATE_KEY --query SecretString --output text > /root/.ssh/id_rsa_raw
 
-      # Rimuove eventuali spazi, caratteri di fine riga errati
-      - cat /root/.ssh/id_rsa_raw | jq -r '.SSH_PRIVATE_KEY' | sed 's/\\n/\n/g' | tr -d '\r' > /root/.ssh/id_rsa
+      # Se il file non esiste o è vuoto, interrompe l'esecuzione
+      - if [ ! -s /root/.ssh/id_rsa_raw ]; then echo "ERROR: SSH key is empty"; exit 1; fi
+
+      # Rimuove caratteri di escape errati
+      - cat /root/.ssh/id_rsa_raw | tr -d '\r' > /root/.ssh/id_rsa
       - chmod 600 /root/.ssh/id_rsa
 
-      - echo "Verifying SSH Key Format..."
-      - file /root/.ssh/id_rsa  # Controlla che sia un file chiave privata valido
-      - head -n 5 /root/.ssh/id_rsa  # Mostra le prime 5 righe per debugging
+      # Verifica il formato della chiave privata
+      - echo "Checking SSH key format..."
+      - file /root/.ssh/id_rsa
+      - head -n 5 /root/.ssh/id_rsa  # Mostra solo le prime 5 righe per debug
 
-      # Testa la connessione SSH prima di procedere
+      # Testa la connessione SSH
       - echo "Testing SSH connection..."
-      - ssh -o StrictHostKeyChecking=no -i /root/.ssh/id_rsa ec2-user@16.170.247.142 "echo 'SSH Connection Successful!'"
+      - ssh -v -o StrictHostKeyChecking=no -i /root/.ssh/id_rsa ec2-user@16.170.247.142 "echo 'SSH Connection Successful!'"
+
+      # Se la connessione fallisce, interrompe l'esecuzione
+      - if [ $? -ne 0 ]; then echo "ERROR: SSH connection failed"; exit 1; fi
 
       # Deploy dei file al server EC2
       - echo "Deploying backend to EC2..."
       - scp -o StrictHostKeyChecking=no -i /root/.ssh/id_rsa -r published/* ec2-user@16.170.247.142:/var/www/backend/
 
-      # Riavvia il backend (assumendo che usi systemd o PM2 per processi Node.js/.NET)
+      # Riavvia il backend
       - echo "Restarting backend service..."
       - ssh -o StrictHostKeyChecking=no -i /root/.ssh/id_rsa ec2-user@16.170.247.142 "sudo systemctl restart backend || pm2 restart backend"
 
