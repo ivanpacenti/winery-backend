@@ -11,7 +11,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("http://localhost:4200")
+        policy.WithOrigins("http://localhost:4200","https://d1s9cuhlgyc5x4.cloudfront.net")
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
@@ -83,15 +83,14 @@ var app = builder.Build();
 
 app.UseCors("AllowFrontend");
 
-if (app.Environment.IsDevelopment())
-{
+
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API v1");
         c.RoutePrefix = string.Empty;
     });
-}
+
 
 app.UseAuthentication(); // Deve essere prima di UseAuthorization
 app.UseAuthorization();
