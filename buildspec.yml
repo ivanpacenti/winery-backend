@@ -13,7 +13,10 @@ phases:
   post_build:
     commands:
       - echo "Fetching SSH Key from Secrets Manager..."
-      - aws secretsmanager get-secret-value --secret-id SSH_PRIVATE_KEY --query SecretString --output text | jq -r '.SSH_PRIVATE_KEY' > /root/.ssh/id_rsa
+      - aws secretsmanager get-secret-value --secret-id SSH_PRIVATE_KEY --query SecretString --output text | jq -r '.SSH_PRIVATE_KEY' | tr -d '\r' > /root/.ssh/id_rsa
+      - chmod 600 /root/.ssh/id_rsa
+      - openssl rsa -in /root/.ssh/id_rsa -out /root/.ssh/id_rsa.new -nocrypt
+      - mv /root/.ssh/id_rsa.new /root/.ssh/id_rsa
       - chmod 600 /root/.ssh/id_rsa
       - echo "Verifying SSH Key Format..."
       - cat /root/.ssh/id_rsa | head -n 5  # Visualizza solo le prime 5 righe per debug
