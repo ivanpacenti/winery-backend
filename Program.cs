@@ -77,7 +77,7 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-builder.WebHost.UseUrls("http://0.0.0.0:5103");
+builder.WebHost.UseUrls("http://localhost:5103");
 
 var app = builder.Build();
 
