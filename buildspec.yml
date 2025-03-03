@@ -13,27 +13,14 @@ phases:
   post_build:
     commands:
       - echo "Fetching SSH Key from Secrets Manager..."
-      - aws secretsmanager get-secret-value --secret-id SSH_PRIVATE_KEY --query SecretString --output text > /root/.ssh/id_rsa_raw
-    
-      - if [ ! -s /root/.ssh/id_rsa_raw ]; then echo "ERROR: SSH key is empty"; exit 1; fi
-    
-      - echo -e "$(aws secretsmanager get-secret-value --secret-id SSH_PRIVATE_KEY --query 'SecretString' --output text | sed 's/\\n/\n/g')" > /root/.ssh/id_rsa
+      - aws secretsmanager get-secret-value --secret-id SSH_PRIVATE_KEY --query SecretString --output text | jq -r '.SSH_PRIVATE_KEY' | tr -d '\r' > /root/.ssh/id_rsa
       - chmod 600 /root/.ssh/id_rsa
-    
-      - echo "Checking SSH key format..."
-      - file /root/.ssh/id_rsa
-      - head -n 5 /root/.ssh/id_rsa
-    
+      - echo "Reformatting SSH Key..."
+      - openssl rsa -in /root/.ssh/id_rsa -out /root/.ssh/id_rsa.new -nocrypt
+      - mv /root/.ssh/id_rsa.new /root/.ssh/id_rsa
+      - chmod 600 /root/.ssh/id_rsa
+      - echo "Verifying SSH Key Format..."
+      - cat /root/.ssh/id_rsa | head -n 5  # Debug
+      - file /root/.ssh/id_rsa  # Controlla il formato della chiave
       - echo "Testing SSH connection..."
-      - ssh -o StrictHostKeyChecking=no -i /root/.ssh/id_rsa ec2-user@16.170.247.142 "echo 'SSH Connection Successful!'"
-    
-      - if [ $? -ne 0 ]; then echo "ERROR: SSH connection failed"; exit 1; fi
-    
-      - echo "Deploying backend to EC2..."
-      - scp -o StrictHostKeyChecking=no -i /root/.ssh/id_rsa -r published/* ec2-user@16.170.247.142:/var/www/backend/
-    
-      - echo "Restarting backend service..."
-      - ssh -o StrictHostKeyChecking=no -i /root/.ssh/id_rsa ec2-user@16.170.247.142 "sudo systemctl restart backend || pm2 restart backend"
-    
-      - echo "Removing SSH private key..."
-      - rm -f /root/.ssh/id_rsa /root/.ssh/id_rsa_raw
+      - ssh -o StrictHostKeyChecking=no -i /root/.ssh/id_rsa ec2-user@16.170.247.142 "echo 'Connected successfully!'"
