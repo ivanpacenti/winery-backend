@@ -2,7 +2,7 @@ version: 0.2
 
 env:
   secrets-manager:
-    SSH_PRIVATE_KEY: "SSH_SECRET:PRIVATE_KEY"
+    SSH_PRIVATE_KEY: "SSH_PRIVATE_KEY:PRIVATE_KEY"
 
 phases:
   install:
