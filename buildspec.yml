@@ -15,10 +15,9 @@ phases:
       - echo "Fetching SSH Key from Secrets Manager..."
       - aws secretsmanager get-secret-value --secret-id SSH_PRIVATE_KEY --query SecretString --output text | jq -r '.SSH_PRIVATE_KEY' > /root/.ssh/id_rsa
       - chmod 600 /root/.ssh/id_rsa
+      - echo "Verifying SSH Key Format..."
+      - cat /root/.ssh/id_rsa | head -n 5  # Visualizza solo le prime 5 righe per debug
+      - file /root/.ssh/id_rsa  # Controlla il formato della chiave
       - echo "Testing SSH connection..."
       - ssh -o StrictHostKeyChecking=no -i /root/.ssh/id_rsa ec2-user@16.170.247.142 "echo 'Connected successfully!'"
-      - echo "Deploying backend to EC2..."
-      - scp -o StrictHostKeyChecking=no -i /root/.ssh/id_rsa -r published/* ec2-user@16.170.247.142:/var/www/backend/
-      - echo "Restarting backend service..."
-      - ssh -i /root/.ssh/id_rsa ec2-user@16.170.247.142 "sudo systemctl restart backend.service"
-      - echo "Finished deployment"
+  
