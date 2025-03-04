@@ -13,7 +13,8 @@ builder.Services.AddCors(options =>
     {
         policy.WithOrigins("http://localhost:4200","https://d1s9cuhlgyc5x4.cloudfront.net")
               .AllowAnyHeader()
-              .AllowAnyMethod();
+              .AllowAnyMethod().
+              AllowCredentials();
     });
 });
 
@@ -77,9 +78,15 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-builder.WebHost.UseUrls("http://localhost:5103");
+builder.WebHost.UseUrls("http://0.0.0.0:5103");
 
 var app = builder.Build();
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    dbContext.Database.Migrate(); // Applica eventuali migrazioni pendenti
+}
+
 
 app.UseCors("AllowFrontend");
 
